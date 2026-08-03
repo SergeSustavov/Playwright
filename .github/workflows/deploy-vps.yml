@@ -15,104 +15,74 @@ on:
           - api
 
 jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build runtime image once
+        run: |
+          docker build --target runtime -t playwright-tests:${{ github.sha }} .
+
+      - name: Save Docker image artifact
+        run: |
+          docker save -o playwright-tests-${{ github.sha }}.tar playwright-tests:${{ github.sha }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-image
+          path: playwright-tests-${{ github.sha }}.tar
+
   ui-tests:
+    needs: build-image
     if: ${{ startsWith(inputs.test-suite, 'ui') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      CI: true
-      PLAYWRIGHT_RETRIES: 3
-      PLAYWRIGHT_WORKERS: 2
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download built image
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-image
 
-      - name: Prepare SSH key
-        shell: bash
-        env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_SSH_PASSPHRASE: ${{ secrets.VPS_SSH_PASSPHRASE }}
+      - name: Load image
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          cat > /tmp/ssh-askpass.sh <<'EOF'
-          #!/usr/bin/env bash
-          printf '%s' "$VPS_SSH_PASSPHRASE"
-          EOF
-          chmod +x /tmp/ssh-askpass.sh
-
-          eval "$(ssh-agent -s)"
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-
-          export DISPLAY=:0
-          export SSH_ASKPASS=/tmp/ssh-askpass.sh
-          export SSH_ASKPASS_REQUIRE=force
-          DISPLAY=:0 ssh-add ~/.ssh/id_ed25519
-
-      - name: Deploy repository on VPS
-        run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/playwright && cd /opt/playwright && if [ ! -d .git ]; then git clone ${{ github.server_url }}/${{ github.repository }} .; else git pull; fi"
-
-      - name: Build Docker image on VPS
-        run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker build -t playwright-tests ."
+          docker load -i playwright-tests-${{ github.sha }}.tar
 
       - name: Run selected UI suite in container
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker run --rm -e CI=true -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} -e PLAYWRIGHT_RETRIES=${{ env.PLAYWRIGHT_RETRIES }} -e PLAYWRIGHT_WORKERS=${{ env.PLAYWRIGHT_WORKERS }} playwright-tests"
+          docker run --rm \
+            -e CI=true \
+            -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} \
+            -e PLAYWRIGHT_RETRIES=3 \
+            -e PLAYWRIGHT_WORKERS=2 \
+            playwright-tests:${{ github.sha }}
 
   api-tests:
+    needs: build-image
     if: ${{ inputs.test-suite == 'api' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      CI: true
-      PLAYWRIGHT_RETRIES: 3
-      PLAYWRIGHT_WORKERS: 2
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download built image
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-image
 
-      - name: Prepare SSH key
-        shell: bash
-        env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_SSH_PASSPHRASE: ${{ secrets.VPS_SSH_PASSPHRASE }}
+      - name: Load image
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          cat > /tmp/ssh-askpass.sh <<'EOF'
-          #!/usr/bin/env bash
-          printf '%s' "$VPS_SSH_PASSPHRASE"
-          EOF
-          chmod +x /tmp/ssh-askpass.sh
-
-          eval "$(ssh-agent -s)"
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-
-          export DISPLAY=:0
-          export SSH_ASKPASS=/tmp/ssh-askpass.sh
-          export SSH_ASKPASS_REQUIRE=force
-          DISPLAY=:0 ssh-add ~/.ssh/id_ed25519
-
-      - name: Deploy repository on VPS
-        run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/playwright && cd /opt/playwright && if [ ! -d .git ]; then git clone ${{ github.server_url }}/${{ github.repository }} .; else git pull; fi"
-
-      - name: Build Docker image on VPS
-        run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker build -t playwright-tests ."
+          docker load -i playwright-tests-${{ github.sha }}.tar
 
       - name: Run selected API suite in container
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker run --rm -e CI=true -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} -e PLAYWRIGHT_RETRIES=${{ env.PLAYWRIGHT_RETRIES }} -e PLAYWRIGHT_WORKERS=${{ env.PLAYWRIGHT_WORKERS }} playwright-tests"
+          docker run --rm \
+            -e CI=true \
+            -e PLAYWRIGHT_SUITE=api \
+            -e PLAYWRIGHT_RETRIES=3 \
+            -e PLAYWRIGHT_WORKERS=2 \
+            playwright-tests:${{ github.sha }}
