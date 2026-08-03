@@ -15,8 +15,14 @@ on:
           - api
 
 jobs:
-  deploy:
+  ui-tests:
+    if: ${{ startsWith(inputs.test-suite, 'ui') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: true
+      PLAYWRIGHT_RETRIES: 3
+      PLAYWRIGHT_WORKERS: 2
 
     steps:
       - name: Checkout repository
@@ -30,7 +36,6 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
@@ -51,12 +56,63 @@ jobs:
 
       - name: Deploy repository on VPS
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/playwright && cd /opt/playwright && if [ ! -d .git ]; then git clone ${{ github.server_url }}/${{ github.repository }} .; else git pull; fi"
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/playwright && cd /opt/playwright && if [ ! -d .git ]; then git clone ${{ github.server_url }}/${{ github.repository }} .; else git pull; fi"
 
-      - name: Build Docker image
+      - name: Build Docker image on VPS
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker build -t playwright-tests ."
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker build -t playwright-tests ."
 
-      - name: Run selected Playwright suite in container
+      - name: Run selected UI suite in container
         run: |
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker run --rm -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} playwright-tests"
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker run --rm -e CI=true -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} -e PLAYWRIGHT_RETRIES=${{ env.PLAYWRIGHT_RETRIES }} -e PLAYWRIGHT_WORKERS=${{ env.PLAYWRIGHT_WORKERS }} playwright-tests"
+
+  api-tests:
+    if: ${{ inputs.test-suite == 'api' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: true
+      PLAYWRIGHT_RETRIES: 3
+      PLAYWRIGHT_WORKERS: 2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        shell: bash
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_PASSPHRASE: ${{ secrets.VPS_SSH_PASSPHRASE }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat > /tmp/ssh-askpass.sh <<'EOF'
+          #!/usr/bin/env bash
+          printf '%s' "$VPS_SSH_PASSPHRASE"
+          EOF
+          chmod +x /tmp/ssh-askpass.sh
+
+          eval "$(ssh-agent -s)"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+          export DISPLAY=:0
+          export SSH_ASKPASS=/tmp/ssh-askpass.sh
+          export SSH_ASKPASS_REQUIRE=force
+          DISPLAY=:0 ssh-add ~/.ssh/id_ed25519
+
+      - name: Deploy repository on VPS
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /opt/playwright && cd /opt/playwright && if [ ! -d .git ]; then git clone ${{ github.server_url }}/${{ github.repository }} .; else git pull; fi"
+
+      - name: Build Docker image on VPS
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker build -t playwright-tests ."
+
+      - name: Run selected API suite in container
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -p 1702 -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /opt/playwright && docker run --rm -e CI=true -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} -e PLAYWRIGHT_RETRIES=${{ env.PLAYWRIGHT_RETRIES }} -e PLAYWRIGHT_WORKERS=${{ env.PLAYWRIGHT_WORKERS }} playwright-tests"

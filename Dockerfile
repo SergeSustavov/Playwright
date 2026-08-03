@@ -9,6 +9,9 @@ COPY . .
 
 RUN npx playwright install --with-deps
 
-ENV PLAYWRIGHT_SUITE=ui:all
+ENV CI=true \
+    PLAYWRIGHT_SUITE=ui:all \
+    PLAYWRIGHT_RETRIES=3 \
+    PLAYWRIGHT_WORKERS=2
 
 CMD ["sh", "-c", "if [ \"$PLAYWRIGHT_SUITE\" = \"ui:desktop\" ]; then npm run test:ui:desktop; elif [ \"$PLAYWRIGHT_SUITE\" = \"ui:mobile\" ]; then npm run test:ui:mobile; elif [ \"$PLAYWRIGHT_SUITE\" = \"api\" ]; then npm run test:api; else npm run test:ui:all; fi"]
