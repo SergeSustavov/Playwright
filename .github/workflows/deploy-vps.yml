@@ -1,88 +1,74 @@
-name: Deploy to VPS and run tests
+name: Playwright Tests
 
 on:
   workflow_dispatch:
     inputs:
-      test-suite:
-        description: Choose which suite to run
+      suite:
+        description: Test suite
         required: true
-        default: ui:all
+        default: test:ui:all
         type: choice
         options:
-          - ui:desktop
-          - ui:mobile
-          - ui:all
-          - api
+          - test:ui:desktop
+          - test:ui:mobile
+          - test:ui:all
+          - test:api
+
+      workers:
+        description: Playwright workers
+        required: true
+        default: "2"
+
+      retries:
+        description: Playwright retries
+        required: true
+        default: "2"
+
+env:
+  IMAGE_NAME: playwright-tests
+  IMAGE_TAG: ${{ github.sha }}
+
+concurrency:
+  group: playwright-tests
+  cancel-in-progress: true
 
 jobs:
-  build-image:
+  tests:
+
     runs-on: ubuntu-latest
+
     timeout-minutes: 45
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Build runtime image once
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Playwright
         run: |
-          docker build --target runtime -t playwright-tests:${{ github.sha }} .
+          docker run --rm \
+            -e CI=true \
+            -e PLAYWRIGHT_WORKERS=${{ inputs.workers }} \
+            -e PLAYWRIGHT_RETRIES=${{ inputs.retries }} \
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            npm run ${{ inputs.suite }}
 
-      - name: Save Docker image artifact
-        run: |
-          docker save -o playwright-tests-${{ github.sha }}.tar playwright-tests:${{ github.sha }}
-
-      - name: Upload image artifact
+      - name: Upload Playwright Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-image
-          path: playwright-tests-${{ github.sha }}.tar
-
-  ui-tests:
-    needs: build-image
-    if: ${{ startsWith(inputs.test-suite, 'ui') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-
-    steps:
-      - name: Download built image
-        uses: actions/download-artifact@v4
-        with:
-          name: playwright-image
-
-      - name: Load image
-        run: |
-          docker load -i playwright-tests-${{ github.sha }}.tar
-
-      - name: Run selected UI suite in container
-        run: |
-          docker run --rm \
-            -e CI=true \
-            -e PLAYWRIGHT_SUITE=${{ inputs.test-suite }} \
-            -e PLAYWRIGHT_RETRIES=3 \
-            -e PLAYWRIGHT_WORKERS=2 \
-            playwright-tests:${{ github.sha }}
-
-  api-tests:
-    needs: build-image
-    if: ${{ inputs.test-suite == 'api' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-
-    steps:
-      - name: Download built image
-        uses: actions/download-artifact@v4
-        with:
-          name: playwright-image
-
-      - name: Load image
-        run: |
-          docker load -i playwright-tests-${{ github.sha }}.tar
-
-      - name: Run selected API suite in container
-        run: |
-          docker run --rm \
-            -e CI=true \
-            -e PLAYWRIGHT_SUITE=api \
-            -e PLAYWRIGHT_RETRIES=3 \
-            -e PLAYWRIGHT_WORKERS=2 \
-            playwright-tests:${{ github.sha }}
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
