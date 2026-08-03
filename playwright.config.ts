@@ -29,10 +29,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   /* Retry on CI only */
-  retries: process.env.CI ? 5 : 0,
+  retries: process.env.CI ? 3 : 0,
 
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 10 : 4,
+  workers: process.env.CI ? 8 : 2,
 
   /* fully-parallel mode */
   fullyParallel: true,
@@ -51,10 +51,11 @@ export default defineConfig({
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
-
+    
+    testIdAttribute: 'data-test',
     /* Base URL to use in actions like `await page.goto('/')`. */
 
-    baseURL: 'https://github.com/SergeSustavov',
+    baseURL: 'https://www.saucedemo.com/',
     //navigationTimeout: 50 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */

@@ -8,10 +8,6 @@ export class BasePage {
         this.page = page;
     }
 
-    async goto(url: string) {
-        await this.page.goto(url);
-    }
-
     async getCountTabs() {
         const [newTab] = await Promise.all([this.page.context().waitForEvent('page')]);
         const countTabs = newTab.context().pages().length;
