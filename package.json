@@ -3,7 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --project='UI Tests' --project='UI Tests Mobile'",
+    "test:ui:all": "playwright test --project='UI Tests' --project='UI Tests Mobile'",
+    "test:api": "playwright test --project='API Tests'",
+    "test:ui:desktop": "playwright test --project='UI Tests'",
+    "test:ui:mobile": "playwright test --project='UI Tests Mobile'",
+    "test:report": "playwright show-report",
+    "install:browsers": "playwright install --with-deps"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
