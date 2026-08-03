@@ -55,7 +55,7 @@ export default defineConfig({
     testIdAttribute: 'data-test',
     /* Base URL to use in actions like `await page.goto('/')`. */
 
-    baseURL: 'https://www.saucedemo.com/',
+    // baseURL: '',
     //navigationTimeout: 50 * 1000,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -68,11 +68,20 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
+      name: 'UI Tests',
 
       /* Project-specific settings. */
       use: {
         ...devices['Desktop Chrome'],
+        baseURL: 'https://www.saucedemo.com/',
+      },
+    },
+
+    {
+      name: 'API Tests',
+      timeout: 40 * 1000,
+      use: { 
+        baseURL: 'https://api.saucedemo.com/',
       },
     },
 
@@ -92,9 +101,10 @@ export default defineConfig({
 
     /* Test against mobile viewports. */
     {
-      name: 'Mobile Chrome',
+      name: 'UI Tests Mobile',
       use: {
         ...devices['Pixel 5'],
+        baseURL: 'https://www.saucedemo.com/',
       },
     },
 
