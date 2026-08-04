@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Run Playwright Tests
 
 on:
   workflow_dispatch:
@@ -7,22 +7,12 @@ on:
         description: Test suite
         type: choice
         required: true
-        default: test:ui:all
+        default: test:api
         options:
           - test:ui:desktop
           - test:ui:mobile
           - test:ui:all
           - test:api
-
-      workers:
-        description: Playwright workers
-        required: true
-        default: "2"
-
-      retries:
-        description: Playwright retries
-        required: true
-        default: "2"
 
 concurrency:
   group: playwright
@@ -30,25 +20,19 @@ concurrency:
 
 jobs:
   tests:
-
     runs-on:
       - self-hosted
       - linux
       - x64
       - vps
-
     timeout-minutes: 45
-
     permissions:
       contents: read
-
     env:
       IMAGE_NAME: playwright-tests
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Show environment
         run: |
           whoami
@@ -57,22 +41,17 @@ jobs:
           nproc
           free -h
           df -h
-
       - name: Build image
         run: |
           docker build \
             -t ${IMAGE_NAME}:latest \
             .
-
       - name: Run Playwright
         run: |
           docker run --rm \
             -e CI=true \
-            -e PLAYWRIGHT_WORKERS=${{ inputs.workers }} \
-            -e PLAYWRIGHT_RETRIES=${{ inputs.retries }} \
             ${IMAGE_NAME}:latest \
             npm run ${{ inputs.suite }}
-
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

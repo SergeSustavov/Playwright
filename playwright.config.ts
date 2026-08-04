@@ -29,10 +29,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   /* Retry on CI only */
-  retries: process.env.CI ? Number(process.env.PLAYWRIGHT_RETRIES ?? '3') : 0,
+  retries: process.env.CI ? 2 : 0,
 
   /* Keep CI parallelism conservative for a 2-vCPU VPS. */
-  workers: process.env.CI ? Number(process.env.PLAYWRIGHT_WORKERS ?? '2') : 2,
+  workers: process.env.CI ? 2 : 2,
 
   /* fully-parallel mode */
   fullyParallel: true,
