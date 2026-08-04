@@ -1,5 +1,5 @@
 export class Entities {
 
     // api paths
-    products = 'products';
+    readonly products = 'products';
 };
