@@ -52,19 +52,19 @@ jobs:
             -v "${{ github.workspace }}/test-results:/app/test-results" \
             ${IMAGE_NAME}:latest \
             npm run ${{ inputs.suite }}
-      - name: Upload JUnit artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-results
-          path: test-results
+      # - name: Upload JUnit artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: junit-results
+      #     path: test-results
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
           path: playwright-report
 
-  deploy:
+  reports:
     if: always()
     needs: tests
     runs-on: ubuntu-latest
