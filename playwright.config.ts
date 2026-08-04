@@ -69,7 +69,7 @@ export default defineConfig({
   projects: [
     {
       name: 'UI Tests',
-
+      testDir: './tests/UI',
       /* Project-specific settings. */
       use: {
         ...devices['Desktop Chrome'],
@@ -79,6 +79,7 @@ export default defineConfig({
 
     {
       name: 'API Tests',
+      testDir: './tests/API',
       timeout: 40 * 1000,
       use: { 
         baseURL: 'https://dummyjson.com/',
@@ -102,6 +103,7 @@ export default defineConfig({
     /* Test against mobile viewports. */
     {
       name: 'UI Tests Mobile',
+      testDir: './tests/UI',
       use: {
         ...devices['Pixel 5'],
         baseURL: 'https://www.saucedemo.com/',
