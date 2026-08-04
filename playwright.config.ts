@@ -81,7 +81,7 @@ export default defineConfig({
       name: 'API Tests',
       timeout: 40 * 1000,
       use: { 
-        baseURL: 'https://api.saucedemo.com/',
+        baseURL: 'https://dummyjson.com/',
       },
     },
 
