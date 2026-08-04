@@ -1,0 +1,34 @@
+name: Runner Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - vps
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show system info
+        run: |
+          whoami
+          pwd
+          hostname
+
+      - name: Docker
+        run: |
+          docker --version
+          docker ps
+
+      - name: CPU
+        run: |
+          nproc
+
+      - name: Disk
+        run: |
+          df -h
