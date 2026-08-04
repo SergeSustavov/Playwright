@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "types": ["node"],
+    "types": ["node", "@playwright/test"],
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
@@ -12,6 +12,5 @@
 
   "include": [
     "playwright.config.ts",
-    "tests/**/*.ts"
-, "tests/API/endpoints"  ]
+    "tests/**/*.ts"]
 }
