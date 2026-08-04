@@ -28,10 +28,6 @@ concurrency:
   group: playwright
   cancel-in-progress: true
 
-env:
-  IMAGE_NAME: playwright-tests
-  IMAGE_TAG: ${{ github.sha }}
-
 jobs:
   tests:
 
@@ -46,25 +42,26 @@ jobs:
     permissions:
       contents: read
 
-    steps:
+    env:
+      IMAGE_NAME: playwright-tests
 
-      - name: Checkout repository
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Show environment
         run: |
+          whoami
           docker --version
+          docker ps
           nproc
           free -h
           df -h
 
-      - name: Build Docker image
+      - name: Build image
         run: |
-          export DOCKER_BUILDKIT=1
-
           docker build \
-            --target runtime \
-            -t $IMAGE_NAME:$IMAGE_TAG \
+            -t ${IMAGE_NAME}:latest \
             .
 
       - name: Run Playwright
@@ -73,7 +70,7 @@ jobs:
             -e CI=true \
             -e PLAYWRIGHT_WORKERS=${{ inputs.workers }} \
             -e PLAYWRIGHT_RETRIES=${{ inputs.retries }} \
-            $IMAGE_NAME:$IMAGE_TAG \
+            ${IMAGE_NAME}:latest \
             npm run ${{ inputs.suite }}
 
       - name: Upload Playwright report
@@ -85,8 +82,3 @@ jobs:
             playwright-report
             test-results
           if-no-files-found: ignore
-
-      - name: Remove image
-        if: always()
-        run: |
-          docker image rm -f $IMAGE_NAME:$IMAGE_TAG || true
