@@ -5,9 +5,9 @@ on:
     inputs:
       suite:
         description: Test suite
+        type: choice
         required: true
         default: test:ui:all
-        type: choice
         options:
           - test:ui:desktop
           - test:ui:mobile
@@ -24,35 +24,48 @@ on:
         required: true
         default: "2"
 
+concurrency:
+  group: playwright
+  cancel-in-progress: true
+
 env:
   IMAGE_NAME: playwright-tests
   IMAGE_TAG: ${{ github.sha }}
 
-concurrency:
-  group: playwright-tests
-  cancel-in-progress: true
-
 jobs:
   tests:
 
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - vps
 
     timeout-minutes: 45
 
+    permissions:
+      contents: read
+
     steps:
 
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Show environment
+        run: |
+          docker --version
+          nproc
+          free -h
+          df -h
 
       - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          export DOCKER_BUILDKIT=1
+
+          docker build \
+            --target runtime \
+            -t $IMAGE_NAME:$IMAGE_TAG \
+            .
 
       - name: Run Playwright
         run: |
@@ -60,10 +73,10 @@ jobs:
             -e CI=true \
             -e PLAYWRIGHT_WORKERS=${{ inputs.workers }} \
             -e PLAYWRIGHT_RETRIES=${{ inputs.retries }} \
-            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            $IMAGE_NAME:$IMAGE_TAG \
             npm run ${{ inputs.suite }}
 
-      - name: Upload Playwright Report
+      - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -72,3 +85,8 @@ jobs:
             playwright-report
             test-results
           if-no-files-found: ignore
+
+      - name: Remove image
+        if: always()
+        run: |
+          docker image rm -f $IMAGE_NAME:$IMAGE_TAG || true
