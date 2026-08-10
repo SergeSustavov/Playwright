@@ -9,15 +9,16 @@ export class Products extends Entities {
     readonly searchValue = 'phone';
 
     readonly createProductPayload = {
-        title: 'New Product',
-        description: 'Created from Playwright API test',
-        price: 123,
-        category: 'electronics',
+        title: 'MTB Full Send Button',
+        description: 'Your friend said "No balls" but your kness are shaking? \
+        Get a completely unnecessary button that provides +15% confidence and -40% survival instinct',
+        price: 69.69,
+        category: 'cycling',
     };
 
     readonly updateProductPayload = {
-        title: 'Updated Product',
-        price: 321,
+        title: 'MTB Full Send Button v2',
+        price: 58.008,
     };
 
     async getAllProducts(request: APIRequestContext) {
