@@ -16,7 +16,7 @@ export class Recipes extends Entities {
         servings: 1,
         difficulty: 'Extreme',
         cuisine: 'Gravity',
-        mealType: ['Lunch'],
+        mealType: ['Dirt'],
         ingredients: [
             '1 freeride bike',
             '1 full-face helmet',
@@ -46,7 +46,7 @@ export class Recipes extends Entities {
             'Step 13: Cross the finish line with a huge grin',
             'Step 14: Immediately queue for another run',
         ],
-        tags: ['MTB', 'downhill', 'gravity', 'full-send', 'bike-park'],
+        tags: ['MTB', 'downhill', 'enduro', 'gravity', 'full-send', 'bike-park'],
     };
 
     readonly updateRecipePayload = {
