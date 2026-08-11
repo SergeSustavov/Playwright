@@ -1,5 +1,4 @@
-import { APIRequestContext, Locator, Page } from '@playwright/test';
-import { expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export class BasePage {
     readonly page: Page;
@@ -14,10 +13,10 @@ export class BasePage {
         await newTab.waitForLoadState('domcontentloaded');
         await newTab.close();
         return countTabs;
-    };
-    
+    }
+
     async pageIsScrolled() {
         const pixels = await this.page.evaluate(() => window.pageYOffset);
         return pixels > 5;
-    };
-};
+    }
+}
