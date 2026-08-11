@@ -52,6 +52,7 @@ jobs:
             -e CI=true \
             -v "${{ github.workspace }}/playwright-report:/app/playwright-report" \
             -v "${{ github.workspace }}/test-results:/app/test-results" \
+            --user "$(id -u):$(id -g)" \
             ${IMAGE_NAME}:latest \
             npm run ${{ inputs.suite }}
       # - name: Upload JUnit artifact
