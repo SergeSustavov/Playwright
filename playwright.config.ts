@@ -12,132 +12,138 @@ import { devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+    testDir: './tests',
 
-  /* Maximum time one test can run for. */
-  timeout: 40 * 1000,
+    /* Maximum time one test can run for. */
+    timeout: 40 * 1000,
 
-  expect: {
-    /**
-     * Maximum time expect() should wait for the condition to be met.
-     * For example in `await expect(locator).toHaveText();`
-     */
-    timeout: 20 * 1000,
-  },
-
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-
-  /* Keep CI parallelism conservative for a 2-vCPU VPS. */
-  workers: process.env.CI ? 2 : 2,
-
-  /* fully-parallel mode */
-  fullyParallel: true,
-
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['html', { open: 'never' }],
-    ['list'],
-    ['junit', { outputFile: './test-results/results.xml' }],
-    // ['junit', {embedAnnotationsAsProperties: true, outputFile: './test-results/testrail-report.xml' }]
-  ],
-
-  reportSlowTests: { max: 0, threshold: 90 * 1000 },
-
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
-    actionTimeout: 0,
-    
-    // testIdAttribute: 'data-test',
-    /* Base URL to use in actions like `await page.goto('/')`. */
-
-    // baseURL: '',
-    //navigationTimeout: 50 * 1000,
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'off',
-    screenshot: 'only-on-failure',
-    //video: 'retain-on-failure',
-    viewport: { width: 1280, height: 720 },
-  },
-
-  /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'UI Tests',
-      testDir: './tests/UI',
-      /* Project-specific settings. */
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: 'https://www.saucedemo.com/',
-      },
+    expect: {
+        /**
+         * Maximum time expect() should wait for the condition to be met.
+         * For example in `await expect(locator).toHaveText();`
+         */
+        timeout: 20 * 1000,
     },
 
-    {
-      name: 'API Tests',
-      testDir: './tests/API',
-      timeout: 40 * 1000,
-      use: { 
-        baseURL: 'https://dummyjson.com/',
-      },
+    /* Fail the build on CI if you accidentally left test.only in the source code. */
+    forbidOnly: !!process.env.CI,
+
+    /* Retry on CI only */
+    retries: process.env.CI ? 2 : 0,
+
+    /* Keep CI parallelism conservative for a 2-vCPU VPS. */
+    workers: process.env.CI ? 2 : 2,
+
+    /* fully-parallel mode */
+    fullyParallel: true,
+
+    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    outputDir: './ci-artifacts/test-results',
+
+    reporter: [
+        ['html', {
+            open: 'never',
+            outputFolder: './ci-artifacts/playwright-report',
+        }],
+        ['list'],
+        ['junit', {
+            outputFile: './ci-artifacts/test-results/results.xml',
+        }],
+    ],
+
+    reportSlowTests: { max: 0, threshold: 90 * 1000 },
+
+    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+    use: {
+        /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
+        actionTimeout: 0,
+
+        // testIdAttribute: 'data-test',
+        /* Base URL to use in actions like `await page.goto('/')`. */
+
+        // baseURL: '',
+        //navigationTimeout: 50 * 1000,
+
+        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+        trace: 'off',
+        screenshot: 'only-on-failure',
+        //video: 'retain-on-failure',
+        viewport: { width: 1280, height: 720 },
     },
 
-    // {
-    //   name: 'firefox',
-    //  use: {
-    //    ...devices['Desktop Firefox'],
-    //  },
+    /* Configure projects for major browsers */
+    projects: [
+        {
+            name: 'UI Tests',
+            testDir: './tests/UI',
+            /* Project-specific settings. */
+            use: {
+                ...devices['Desktop Chrome'],
+                baseURL: 'https://www.saucedemo.com/',
+            },
+        },
+
+        {
+            name: 'API Tests',
+            testDir: './tests/API',
+            timeout: 40 * 1000,
+            use: {
+                baseURL: 'https://dummyjson.com/',
+            },
+        },
+
+        // {
+        //   name: 'firefox',
+        //  use: {
+        //    ...devices['Desktop Firefox'],
+        //  },
+        // },
+
+        // {
+        //   name: 'webkit',
+        //  use: {
+        //    ...devices['Desktop Safari'],
+        //  },
+        // },
+
+        /* Test against mobile viewports. */
+        {
+            name: 'UI Tests Mobile',
+            testDir: './tests/UI',
+            use: {
+                ...devices['Pixel 5'],
+                baseURL: 'https://www.saucedemo.com/',
+            },
+        },
+
+        // {
+        //   name: 'Mobile Safari',
+        //   use: {
+        //     ...devices['iPhone 12'],
+        //   },
+        // },
+
+        /* Test against branded browsers. */
+        // {
+        //   name: 'Microsoft Edge',
+        //   use: {
+        //     channel: 'msedge',
+        //   },
+        // },
+        // {
+        //   name: 'Google Chrome',
+        //   use: {
+        //     channel: 'chrome',
+        //   },
+        // },
+    ],
+
+    /* Folder for test artifacts such as screenshots, videos, traces, etc. */
+    // outputDir: 'test-results/',
+
+    /* Run your local dev server before starting the tests */
+    // webServer: {
+    //   command: 'npm run start',
+    //   port: 3000,
     // },
-
-    // {
-    //   name: 'webkit',
-    //  use: {
-    //    ...devices['Desktop Safari'],
-    //  },
-    // },
-
-    /* Test against mobile viewports. */
-    {
-      name: 'UI Tests Mobile',
-      testDir: './tests/UI',
-      use: {
-        ...devices['Pixel 5'],
-        baseURL: 'https://www.saucedemo.com/',
-      },
-    },
-
-    // {
-    //   name: 'Mobile Safari',
-    //   use: {
-    //     ...devices['iPhone 12'],
-    //   },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: {
-    //     channel: 'msedge',
-    //   },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: {
-    //     channel: 'chrome',
-    //   },
-    // },
-  ],
-
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  // outputDir: 'test-results/',
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   port: 3000,
-  // },
 });
