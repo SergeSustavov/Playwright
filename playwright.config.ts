@@ -52,7 +52,7 @@ export default defineConfig({
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     
-    testIdAttribute: 'data-test',
+    // testIdAttribute: 'data-test',
     /* Base URL to use in actions like `await page.goto('/')`. */
 
     // baseURL: '',
