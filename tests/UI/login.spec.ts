@@ -10,14 +10,14 @@ test.describe('login page tests', () => {
         await login.goto();
     });
 
-    test('login page has login form', async () => {
+    test('@smoke login page has login form', async () => {
         await expect(login.loginInput).toBeVisible();
         await expect.soft(login.passwordInput).toBeVisible();
         await expect.soft(login.loginButton).toBeVisible();
         await expect.soft(login.loginLogo).toBeVisible();
     });
 
-    test('user can log in with valid credentials', async ({ page }) => {
+    test('@smoke user can log in with valid credentials', async ({ page }) => {
         await login.loginAsStandardUser();
         await expect.soft(page).toHaveURL(/.*inventory.html/);
         await expect.soft(page.getByText('Products')).toBeVisible();

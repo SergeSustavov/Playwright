@@ -10,12 +10,12 @@ test.describe('Inventory page tests', () => {
         await inventoryPage.goto();
     });
 
-    test('user sees products page after login', async () => {
+    test('@smoke user sees products page after login', async () => {
         await expect.soft(inventoryPage.productsTitle).toBeVisible();
         await expect.soft(inventoryPage.shoppingCart).toBeVisible();
     });
 
-    test('user can open the sidebar menu', async ({ authenticatedPage }) => {
+    test('@smoke user can open the sidebar menu', async ({ authenticatedPage }) => {
         await inventoryPage.burgerMenuButton.click();
         await expect.soft(authenticatedPage.getByText('All Items')).toBeVisible();
         await expect.soft(authenticatedPage.getByText('Logout')).toBeVisible();

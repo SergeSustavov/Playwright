@@ -40,8 +40,10 @@ Run selected suites:
 ```bash
 npm run test:ui:desktop
 npm run test:ui:mobile
-npm run test:ui:all
+npm run test:ui:smoke
+npm run test:ui
 npm run test:api
+npm run test:all
 ```
 
 Open the HTML report:

@@ -7,12 +7,14 @@ on:
         description: Test suite
         type: choice
         required: true
-        default: test:api
+        default: test:all
         options:
           - test:ui:desktop
           - test:ui:mobile
-          - test:ui:all
+          - test:ui
+          - test:ui:smoke
           - test:api
+          - test:all
 
 permissions:
   contents: read
