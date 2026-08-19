@@ -38,11 +38,15 @@ export default defineConfig({
   fullyParallel: true,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['html', { open: 'never' }],
-    ['list'],
-    ['junit', { outputFile: './test-results/results.xml' }],
-    // ['junit', {embedAnnotationsAsProperties: true, outputFile: './test-results/testrail-report.xml' }]
+ reporter: [
+      ['html', {
+          open: 'never',
+          outputFolder: './ci-artifacts/playwright-report',
+      }],
+      ['list'],
+      ['junit', {
+          outputFile: './ci-artifacts/test-results/results.xml',
+      }],
   ],
 
   reportSlowTests: { max: 0, threshold: 90 * 1000 },

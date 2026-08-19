@@ -45,14 +45,14 @@ jobs:
             .
       - name: Prepare report directories
         run: |
-          rm -rf playwright-report test-results
-          mkdir -p playwright-report test-results
+          rm -rf ci-artifacts
+          mkdir -p ci-artifacts
       - name: Run Playwright
         run: |
           docker run --rm \
             -e CI=true \
-            -v "${{ github.workspace }}/playwright-report:/app/playwright-report" \
-            -v "${{ github.workspace }}/test-results:/app/test-results" \
+            -v "${{ github.workspace }}/ci-artifacts:/app/ci-artifacts" \
+            --user "$(id -u):$(id -g)" \
             ${IMAGE_NAME}:latest \
             npm run ${{ inputs.suite }}
       # - name: Upload JUnit artifact
@@ -65,7 +65,7 @@ jobs:
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
-          path: playwright-report
+          path: ci-artifacts/playwright-report
 
   reports:
     if: always()
