@@ -7,6 +7,7 @@ let userID: string | undefined;
 test.describe('User API', () => {
     test.afterEach(async ({ request }) => {
         if (userID) await user.deleteUser(request, userID); // still can't delete user in case !userID
+        userID = undefined;
     });
 
     test('create new user', async ({ request }) => {
