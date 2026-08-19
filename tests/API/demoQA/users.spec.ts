@@ -22,7 +22,7 @@ test.describe('User API', () => {
         }));
     });
 
-    test('create new user w/o username', async ({ request }) => {
+    test('@negative create new user w/o username', async ({ request }) => {
         const response = await request.post(user.user, {
             data: {
                 userName: '',
@@ -33,7 +33,7 @@ test.describe('User API', () => {
         expect(responseBody.message).toEqual('UserName and Password required.');
     });
 
-    test('create new user incorrect password', async ({ request }) => {
+    test('@negative create new user incorrect password', async ({ request }) => {
         const response = await request.post(user.user, {
             data: {
                 userName: await user.getUniqueUserName(),
