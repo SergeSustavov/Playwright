@@ -10,7 +10,10 @@
     "test:ui:desktop": "playwright test --project='UI Tests'",
     "test:ui:mobile": "playwright test --project='UI Tests Mobile'",
     "test:report": "playwright show-report",
-    "install:browsers": "playwright install --with-deps"
+    "install:browsers": "playwright install --with-deps",
+    "test:ui:demo": "playwright test --project='UI Tests DemoQA'",
+    "test:api:demo": "playwright test --project='API Tests DemoQA'",
+    "test:all:demo": "playwright test --project='API Tests DemoQA' --project='UI Tests DemoQA'"
   },
   "keywords": [],
   "author": "",

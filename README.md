@@ -6,6 +6,8 @@ This repository contains a Playwright + TypeScript test automation setup for UI 
 
 - `tests/UI` — UI test suites and page-object-based helpers.
 - `tests/API` — API test suites and endpoint/request helpers.
+- `tests/UI/demoQA` — UI test suites and page-object-based helpers for DemoQA UI.
+- `tests/API/demoQA` — API test suites and endpoint/request helpers for DemoQA API.
 - `playwright.config.ts` — Playwright configuration, projects, reporters, and shared test settings.
 - `Dockerfile` — container image used to run the test suite in a consistent environment.
 - `.github/workflows/deploy-vps.yml` — GitHub Actions workflow for running selected suites and publishing the Playwright report.
@@ -42,6 +44,9 @@ npm run test:ui:desktop
 npm run test:ui:mobile
 npm run test:ui:all
 npm run test:api
+npm run test:ui:demo
+npm run test:api:demo
+npm run test:all:demo
 ```
 
 Open the HTML report:

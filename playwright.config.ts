@@ -86,6 +86,24 @@ export default defineConfig({
       },
     },
 
+    {
+      name: 'UI Tests DemoQA',
+      testDir: './tests/UI/demoQA',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'https://demoqa.com/',
+      },
+    },
+
+    {
+      name: 'API Tests DemoQA',
+      testDir: './tests/API/demoQA',
+      timeout: 40 * 1000,
+      use: { 
+        baseURL: 'https://demoqa.com/',
+      },
+    },
+
     // {
     //   name: 'firefox',
     //  use: {

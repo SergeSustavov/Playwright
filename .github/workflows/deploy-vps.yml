@@ -13,6 +13,9 @@ on:
           - test:ui:mobile
           - test:ui:all
           - test:api
+          - test:ui:demo
+          - test:api:demo
+          - test:all:demo
 
 permissions:
   contents: read
