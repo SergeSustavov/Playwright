@@ -38,7 +38,7 @@ export default defineConfig({
   fullyParallel: true,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
- reporter: [
+  reporter: [
       ['html', {
           open: 'never',
           outputFolder: './ci-artifacts/playwright-report',
@@ -48,6 +48,7 @@ export default defineConfig({
           outputFile: './ci-artifacts/test-results/results.xml',
       }],
   ],
+  outputDir: './ci-artifacts/test-results',
 
   reportSlowTests: { max: 0, threshold: 90 * 1000 },
 
@@ -153,9 +154,6 @@ export default defineConfig({
     //   },
     // },
   ],
-
-  /* Folder for test artifacts such as screenshots, videos, traces, etc. */
-  // outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
   // webServer: {
