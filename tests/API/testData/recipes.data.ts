@@ -1,0 +1,53 @@
+export const recipesTestData = {
+    recipeId: 1,
+    invalidRecipeId: 999999,
+    limit: 5,
+    skip: 0,
+    searchValue: 'pizza',
+
+    createRecipePayload: {
+        name: 'Full Send Downhill/Enduro MTB Recipe',
+        description: 'A high-speed recipe combining gravity, suspension and poor financial decisions lol',
+        prepTimeMinutes: 10,
+        cookTimeMinutes: 20,
+        servings: 1,
+        difficulty: 'Extreme',
+        cuisine: 'Gravity',
+        mealType: ['Dirt'],
+        ingredients: [
+            '1 freeride bike',
+            '1 full-face helmet',
+            '1 set of knee pads',
+            '1 set of back protection',
+            '1 pair of gloves',
+            '1 pair of goggles',
+            '170 (or higher) mm of suspension',
+            '4 piston brakes',
+            '1 chairlift',
+            '100% gravity',
+            'zero unnecessary braking',
+        ],
+        instructions: [
+            'Step 1: Load the bike onto the chairlift',
+            'Step 2: Reconsider every decision that led to buying a downhill bike',
+            'Step 3: Reach the top',
+            'Step 4: Drop in',
+            'Step 5: Brake late',
+            'Step 6: Brake even later',
+            'Step 7: Hit the rock garden and let the suspension earn its salary',
+            'Step 8: Find a jump',
+            'Step 9: Send the jump',
+            'Step 10: Land slightly sideways but pretend it was intentional',
+            'Step 11: Enter the next corner with more speed than talent',
+            'Step 12: Somehow make the corner',
+            'Step 13: Cross the finish line with a huge grin',
+            'Step 14: Immediately queue for another run',
+        ],
+        tags: ['MTB', 'downhill', 'enduro', 'gravity', 'full-send', 'bike-park'],
+    },
+
+    updateRecipePayload: {
+        name: 'Survive an Enduro Descent',
+        description: 'Recipe for turning elevation, rocks and questionable decisions into one very fast descent',
+    }
+}
