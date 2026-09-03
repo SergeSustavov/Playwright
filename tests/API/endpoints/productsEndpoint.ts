@@ -2,25 +2,7 @@ import { APIRequestContext } from '@playwright/test';
 import { Entities } from '../helpers/entities';
 
 export class Products extends Entities {
-    readonly productId = 5;
-    readonly invalidProductId = 999999;
-    readonly limit = 5;
-    readonly skip = 5;
-    readonly searchValue = 'phone';
-
-    readonly createProductPayload = {
-        title: 'MTB Full Send Button',
-        description: 'Your friend said "No balls" but your kness are shaking? \
-        Get a completely unnecessary button that provides +15% confidence and -40% survival instinct',
-        price: 69.69,
-        category: 'cycling',
-    };
-
-    readonly updateProductPayload = {
-        title: 'MTB Full Send Button v2',
-        price: 58.008,
-    };
-
+    
     async getAllProducts(request: APIRequestContext) {
         return request.get(this.products);
     }
